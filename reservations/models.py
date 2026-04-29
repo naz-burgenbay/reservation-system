@@ -22,3 +22,9 @@ class Reservation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['room', 'status', 'start_time', 'end_time'], name='reservation_overlap_idx'),
+            models.Index(fields=['user', 'start_time'], name='reservation_user_time_idx'),
+        ]

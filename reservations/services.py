@@ -1,6 +1,5 @@
-import uuid
-
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils import timezone
 from .models import Reservation
 
@@ -14,7 +13,7 @@ def _validate_times(start_time, end_time):
 
 
 def _check_room_overlap(room, start_time, end_time, exclude_id=None):
-    qs = Reservation.objects.filter(
+    qs = Reservation.objects.select_for_update().filter(
         room=room,
         status='active',
         start_time__lt=end_time,
@@ -27,6 +26,7 @@ def _check_room_overlap(room, start_time, end_time, exclude_id=None):
 
 # Основные функции
 
+@transaction.atomic
 def create_reservation(user, room, title, start_time, end_time):
     if not title or not title.strip():
         raise ValidationError("title must not be blank.")
@@ -35,10 +35,9 @@ def create_reservation(user, room, title, start_time, end_time):
     _validate_times(start_time, end_time)
     _check_room_overlap(room, start_time, end_time)
     return Reservation.objects.create(
-        id=uuid.uuid4(),
         user=user,
         room=room,
-        title=title,
+        title=title.strip(),
         start_time=start_time,
         end_time=end_time,
         status='active',
@@ -54,13 +53,16 @@ def get_user_reservations(user, start=None, end=None):
     return qs.order_by('start_time')
 
 
+@transaction.atomic
 def update_reservation(reservation, new_title=None, new_start_time=None, new_end_time=None):
     if reservation.status == 'canceled':
         raise ValidationError("Cannot update a canceled reservation.")
+    if not reservation.room.is_active:
+        raise ValidationError("The room is not available for reservations.")
     if new_title is not None:
         if not new_title.strip():
             raise ValidationError("title must not be blank.")
-        reservation.title = new_title
+        reservation.title = new_title.strip()
     start_time = new_start_time if new_start_time is not None else reservation.start_time
     end_time = new_end_time if new_end_time is not None else reservation.end_time
     if new_start_time is not None or new_end_time is not None:
