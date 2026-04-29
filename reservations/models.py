@@ -6,8 +6,8 @@ from rooms.models import Room
 class Reservation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -18,7 +18,13 @@ class Reservation(models.Model):
         ('active', 'Active'),
         ('canceled', 'Canceled'),
     ]
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['room', 'status', 'start_time', 'end_time'], name='reservation_overlap_idx'),
+            models.Index(fields=['user', 'start_time'], name='reservation_user_time_idx'),
+        ]
