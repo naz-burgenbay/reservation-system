@@ -1,8 +1,10 @@
 from django.core.exceptions import ValidationError
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
+from users.permissions import IsAdminRole
 from .models import Building, Room
 from .serializers import (
     CreateBuildingSerializer,
@@ -26,6 +28,7 @@ from reservations.serializers import ReservationSerializer
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminRole])
 def building_create(request):
     serializer = CreateBuildingSerializer(data=request.data)
     if serializer.is_valid():
@@ -38,7 +41,9 @@ def building_create(request):
             return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def building_rooms(request, building_id):
     try:
         building = Building.objects.get(id=building_id)
@@ -47,12 +52,16 @@ def building_rooms(request, building_id):
     rooms = get_building_rooms(building)
     return Response(RoomSerializer(rooms, many=True).data)
 
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def building_list(request):
     buildings = Building.objects.all().order_by('name')
     return Response(BuildingSerializer(buildings, many=True).data)
 
+
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated, IsAdminRole])
 def building_update(request, building_id):
     try:
         building = Building.objects.get(id=building_id)
@@ -64,13 +73,15 @@ def building_update(request, building_id):
     try:
         updated = update_building(
             building,
-            name=serializer.validated_data.get('name')
+            new_name=serializer.validated_data.get('name')
         )
         return Response(BuildingSerializer(updated).data)
     except ValidationError as e:
         return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated, IsAdminRole])
 def building_delete(request, building_id):
     try:
         building = Building.objects.get(id=building_id)
@@ -82,7 +93,9 @@ def building_delete(request, building_id):
     except ValidationError as e:
         return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminRole])
 def room_create(request):
     serializer = CreateRoomSerializer(data=request.data)
     if serializer.is_valid():
@@ -102,7 +115,9 @@ def room_create(request):
             return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def room_reservations(request, room_id):
     try:
         room = Room.objects.get(id=room_id)
@@ -113,12 +128,16 @@ def room_reservations(request, room_id):
     reservations = get_room_reservations(room, start=start, end=end)
     return Response(ReservationSerializer(reservations, many=True).data)
 
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def room_list(request):
     rooms = Room.objects.all().order_by('name')
     return Response(RoomSerializer(rooms, many=True).data)
 
+
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated, IsAdminRole])
 def room_update(request, room_id):
     try:
         room = Room.objects.get(id=room_id)
@@ -130,15 +149,17 @@ def room_update(request, room_id):
     try:
         updated = update_room(
             room,
-            name=serializer.validated_data.get('name'),
-            capacity=serializer.validated_data.get('capacity'),
-            is_active=serializer.validated_data.get('is_active')
+            new_name=serializer.validated_data.get('name'),
+            new_capacity=serializer.validated_data.get('capacity'),
+            new_is_active=serializer.validated_data.get('is_active')
         )
         return Response(RoomSerializer(updated).data)
     except ValidationError as e:
         return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated, IsAdminRole])
 def room_delete(request, room_id):
     try:
         room = Room.objects.get(id=room_id)

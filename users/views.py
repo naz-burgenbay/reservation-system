@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .models import User
+from .permissions import IsAdminRole
 from .serializers import RegisterSerializer, UserSerializer
 
 
@@ -25,3 +27,10 @@ def register(request):
 @permission_classes([IsAuthenticated])
 def me(request):
     return Response(UserSerializer(request.user).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminRole])
+def user_list(request):
+    users = User.objects.all().order_by('username')
+    return Response(UserSerializer(users, many=True).data)
