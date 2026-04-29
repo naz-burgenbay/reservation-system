@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rooms.models import Building, Room
 
@@ -263,3 +265,45 @@ class ReservationServiceTestCase(TestCase):
         cancel_reservation(res)
         with self.assertRaises(ValidationError):
             cancel_reservation(res)
+
+
+class ReservationAPITestCase(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.building = Building.objects.create(name='HQ')
+        self.room = Room.objects.create(
+            building=self.building, name='Room A', capacity=10, is_active=True
+        )
+        self.now = timezone.now()
+        self.user = User.objects.create_user(
+            username='user1', email='user1@example.com', password='pass', role='user'
+        )
+        self.other_user = User.objects.create_user(
+            username='user2', email='user2@example.com', password='pass', role='user'
+        )
+        token = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
+
+    def _auth_as(self, user):
+        token = RefreshToken.for_user(user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
+
+    def test_invalid_start_datetime_returns_400(self):
+        url = '/api/reservations/?start=not-a-date'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.data)
+
+    def test_user_cannot_access_other_users_reservation(self):
+        reservation = Reservation.objects.create(
+            user=self.other_user,
+            room=self.room,
+            title='Other meeting',
+            start_time=self.now + timedelta(hours=1),
+            end_time=self.now + timedelta(hours=2),
+            status='active',
+        )
+        url = f'/api/reservations/{reservation.id}/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

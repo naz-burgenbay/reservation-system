@@ -3,6 +3,8 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from reservations.models import Reservation
 
@@ -111,3 +113,48 @@ class RoomServiceTestCase(TestCase):
         # Комната без броней возвращает пустой результат
         qs = get_room_reservations(self.room)
         self.assertEqual(qs.count(), 0)
+
+
+class RoomAPITestCase(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.admin = User.objects.create_user(
+            username='admin_user', email='admin@example.com', password='pass', role='admin'
+        )
+        self.building = Building.objects.create(name='HQ')
+        self.room = Room.objects.create(
+            building=self.building, name='Room A', capacity=10, is_active=True
+        )
+        token = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token.access_token}')
+        self.now = timezone.now()
+
+    def test_invalid_start_datetime_returns_400(self):
+        url = f'/api/rooms/{self.room.id}/reservations/?start=not-a-date'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.data)
+
+    def test_invalid_end_datetime_returns_400(self):
+        url = f'/api/rooms/{self.room.id}/reservations/?end=bad-value'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.data)
+
+    def test_cannot_deactivate_room_with_future_reservations(self):
+        user = User.objects.create_user(
+            username='reg_user', email='reg@example.com', password='pass', role='user'
+        )
+        Reservation.objects.create(
+            user=user,
+            room=self.room,
+            title='Upcoming',
+            start_time=self.now + timezone.timedelta(hours=1),
+            end_time=self.now + timezone.timedelta(hours=2),
+            status='active',
+        )
+        url = f'/api/rooms/{self.room.id}/update/'
+        response = self.client.patch(url, {'is_active': False}, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.data)
