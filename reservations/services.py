@@ -8,8 +8,6 @@ from .models import Reservation
 def _validate_times(start_time, end_time):
     if start_time >= end_time:
         raise ValidationError("end_time must be after start_time.")
-    if start_time < timezone.now():
-        raise ValidationError("start_time must not be in the past.")
 
 
 def _check_room_overlap(room, start_time, end_time, exclude_id=None):
@@ -32,6 +30,8 @@ def create_reservation(user, room, title, start_time, end_time):
         raise ValidationError("title must not be blank.")
     if not room.is_active:
         raise ValidationError("The room is not available for reservations.")
+    if start_time < timezone.now():
+        raise ValidationError("start_time must not be in the past.")
     _validate_times(start_time, end_time)
     _check_room_overlap(room, start_time, end_time)
     return Reservation.objects.create(
@@ -74,6 +74,7 @@ def update_reservation(reservation, new_title=None, new_start_time=None, new_end
     return reservation
 
 
+@transaction.atomic
 def cancel_reservation(reservation):
     if reservation.status == 'canceled':
         raise ValidationError("Reservation is already canceled.")

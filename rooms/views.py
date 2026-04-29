@@ -1,4 +1,6 @@
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_datetime
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -123,8 +125,18 @@ def room_reservations(request, room_id):
         room = Room.objects.get(id=room_id)
     except Room.DoesNotExist:
         return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
-    start = request.query_params.get('start')
-    end = request.query_params.get('end')
+    start_str = request.query_params.get('start')
+    end_str = request.query_params.get('end')
+    start = None
+    end = None
+    if start_str:
+        start = parse_datetime(start_str)
+        if start is None:
+            return Response({'error': 'Invalid start datetime.'}, status=status.HTTP_400_BAD_REQUEST)
+    if end_str:
+        end = parse_datetime(end_str)
+        if end is None:
+            return Response({'error': 'Invalid end datetime.'}, status=status.HTTP_400_BAD_REQUEST)
     reservations = get_room_reservations(room, start=start, end=end)
     return Response(ReservationSerializer(reservations, many=True).data)
 
@@ -170,3 +182,17 @@ def room_delete(request, room_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except ValidationError as e:
         return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def building_detail(request, building_id):
+    building = get_object_or_404(Building, id=building_id)
+    return Response(BuildingSerializer(building).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def room_detail(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    return Response(RoomSerializer(room).data)

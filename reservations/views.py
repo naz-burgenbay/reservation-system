@@ -1,4 +1,6 @@
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_datetime
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -42,8 +44,18 @@ def reservation_create(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def reservation_list(request):
-    start = request.query_params.get('start')
-    end = request.query_params.get('end')
+    start_str = request.query_params.get('start')
+    end_str = request.query_params.get('end')
+    start = None
+    end = None
+    if start_str:
+        start = parse_datetime(start_str)
+        if start is None:
+            return Response({'error': 'Invalid start datetime.'}, status=status.HTTP_400_BAD_REQUEST)
+    if end_str:
+        end = parse_datetime(end_str)
+        if end is None:
+            return Response({'error': 'Invalid end datetime.'}, status=status.HTTP_400_BAD_REQUEST)
     reservations = get_user_reservations(request.user, start=start, end=end)
     return Response(ReservationSerializer(reservations, many=True).data)
 
@@ -74,7 +86,7 @@ def reservation_update(request, reservation_id):
 @permission_classes([IsAuthenticated])
 def reservation_cancel(request, reservation_id):
     try:
-        if request.user.role == 'admin':
+        if IsAdminRole().has_permission(request, None):
             reservation = Reservation.objects.get(id=reservation_id)
         else:
             reservation = Reservation.objects.get(id=reservation_id, user=request.user)
@@ -85,3 +97,13 @@ def reservation_cancel(request, reservation_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except ValidationError as e:
         return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def reservation_detail(request, reservation_id):
+    if IsAdminRole().has_permission(request, None):
+        reservation = get_object_or_404(Reservation, id=reservation_id)
+    else:
+        reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
+    return Response(ReservationSerializer(reservation).data)

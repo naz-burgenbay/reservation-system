@@ -13,6 +13,11 @@ class UpdateReservationSerializer(serializers.Serializer):
     end_time = serializers.DateTimeField(required=False)
     title = serializers.CharField(max_length=255, required=False)
 
+    def validate(self, data):
+        if not data:
+            raise serializers.ValidationError("At least one field must be provided.")
+        return data
+
 class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation

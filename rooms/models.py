@@ -19,7 +19,7 @@ class Building(models.Model):
 
 class Room(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.PROTECT)
     name = models.CharField(max_length=255)
     capacity = models.IntegerField()
     is_active = models.BooleanField(default=True)

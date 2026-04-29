@@ -29,6 +29,8 @@ def update_building(building, new_name=None):
     return building
 
 def delete_building(building):
+    if building.room_set.exists():
+        raise ValidationError("Cannot delete a building that still has rooms.")
     building.delete()
 
 @transaction.atomic
@@ -84,4 +86,4 @@ def update_room(room, new_name=None, new_capacity=None, new_is_active=None):
     return room
 
 def delete_room(room):
-    room.delete()
+    raise ValidationError("Rooms cannot be deleted. Deactivate the room instead.")
