@@ -13,30 +13,28 @@ from .services import (
     cancel_reservation,
 )
 
-
 @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
 def reservation_create(request):
     serializer = CreateReservationSerializer(data=request.data)
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    try:
-        room = Room.objects.get(id=serializer.validated_data['room'])
-    except Room.DoesNotExist:
-        return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
-    try:
-        reservation = create_reservation(
-            user=request.user,
-            room=room,
-            title=serializer.validated_data['title'],
-            start_time=serializer.validated_data['start_time'],
-            end_time=serializer.validated_data['end_time'],
-        )
-        return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)
-    except ValidationError as e:
-        return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
-
-
+    if serializer.is_valid():
+        try:
+            room = Room.objects.get(id=serializer.validated_data['room'])
+        except Room.DoesNotExist:
+            return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            reservation = create_reservation(
+                user=request.user,
+                room=room,
+                title=serializer.validated_data['title'],
+                start_time=serializer.validated_data['start_time'],
+                end_time=serializer.validated_data['end_time'],
+            )
+            return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
 def reservation_list(request):
@@ -44,7 +42,6 @@ def reservation_list(request):
     end = request.query_params.get('end')
     reservations = get_user_reservations(request.user, start=start, end=end)
     return Response(ReservationSerializer(reservations, many=True).data)
-
 
 @api_view(['PATCH'])
 # @permission_classes([IsAuthenticated])
