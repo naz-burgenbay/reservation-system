@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils import timezone
 from .models import Building, Room
 from reservations.models import Reservation
 
@@ -68,6 +69,16 @@ def update_room(room, new_name=None, new_capacity=None, new_is_active=None):
             raise ValidationError("capacity must be a positive integer.")
         room.capacity = new_capacity
     if new_is_active is not None:
+        if not new_is_active and room.is_active:
+            has_future = Reservation.objects.filter(
+                room=room,
+                status='active',
+                end_time__gt=timezone.now(),
+            ).exists()
+            if has_future:
+                raise ValidationError(
+                    "Cannot deactivate a room with future active reservations."
+                )
         room.is_active = new_is_active
     room.save()
     return room
