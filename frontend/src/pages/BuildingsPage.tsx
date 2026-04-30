@@ -49,13 +49,20 @@ export default function BuildingsPage() {
             </p>
           )}
           {buildings.map((b) => (
-            <Link key={b.id} to={`/buildings/${b.id}`} className="list-item">
-              <Building2 size={20} color="var(--color-primary)" strokeWidth={2} />
-              <div>
-                <p className="list-item-name">{b.name}</p>
-                {b.address && <p className="list-item-meta">{b.address}</p>}
-              </div>
-            </Link>
+            <div key={b.id} className="list-item">
+              <Link to={`/buildings/${b.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                <Building2 size={20} color="var(--color-primary)" strokeWidth={2} />
+                <div>
+                  <p className="list-item-name">{b.name}</p>
+                  {b.address && <p className="list-item-meta">{b.address}</p>}
+                </div>
+              </Link>
+              {user?.role === 'admin' && (
+                <Link to={`/buildings/${b.id}/edit`} className="link" style={{ flexShrink: 0 }}>
+                  {t('common.edit')}
+                </Link>
+              )}
+            </div>
           ))}
         </div>
       </div>

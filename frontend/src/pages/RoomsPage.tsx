@@ -49,15 +49,22 @@ export default function RoomsPage() {
             </p>
           )}
           {rooms.map((r) => (
-            <Link key={r.id} to={`/rooms/${r.id}`} className="list-item">
-              <DoorOpen size={20} color="var(--color-primary)" strokeWidth={2} />
-              <div>
-                <p className="list-item-name">{r.name}</p>
-                <p className="list-item-meta">
-                  {t('rooms.floor')} {r.floor} · {r.capacity} {t('rooms.seats')}
-                </p>
-              </div>
-            </Link>
+            <div key={r.id} className="list-item">
+              <Link to={`/rooms/${r.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                <DoorOpen size={20} color="var(--color-primary)" strokeWidth={2} />
+                <div>
+                  <p className="list-item-name">{r.name}</p>
+                  <p className="list-item-meta">
+                    {t('rooms.floor')} {r.floor} · {r.capacity} {t('rooms.seats')}
+                  </p>
+                </div>
+              </Link>
+              {user?.role === 'admin' && (
+                <Link to={`/rooms/${r.id}/edit`} className="link" style={{ flexShrink: 0 }}>
+                  {t('common.edit')}
+                </Link>
+              )}
+            </div>
           ))}
         </div>
       </div>

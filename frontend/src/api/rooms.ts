@@ -7,10 +7,10 @@ export const getBuildings = () =>
 export const getBuilding = (id: string) =>
   apiClient.get<Building>(`/rooms/buildings/${id}/`);
 
-export const createBuilding = (data: { name: string }) =>
+export const createBuilding = (data: { name: string; address: string }) =>
   apiClient.post<Building>('/rooms/buildings/create/', data);
 
-export const updateBuilding = (id: string, data: { name: string }) =>
+export const updateBuilding = (id: string, data: { name?: string; address?: string }) =>
   apiClient.patch<Building>(`/rooms/buildings/${id}/update/`, data);
 
 export const deleteBuilding = (id: string) =>
@@ -22,10 +22,10 @@ export const getRooms = () =>
 export const getRoom = (id: string) =>
   apiClient.get<Room>(`/rooms/${id}/`);
 
-export const createRoom = (data: { building: string; name: string; capacity: number }) =>
+export const createRoom = (data: { building: string; name: string; floor: number; capacity: number }) =>
   apiClient.post<Room>('/rooms/create-room/', data);
 
-export const updateRoom = (id: string, data: { name?: string; capacity?: number; is_active?: boolean }) =>
+export const updateRoom = (id: string, data: { name?: string; floor?: number; capacity?: number; is_active?: boolean }) =>
   apiClient.patch<Room>(`/rooms/${id}/update/`, data);
 
 export const deleteRoom = (id: string) =>
