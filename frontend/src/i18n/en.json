@@ -1,0 +1,22 @@
+{
+  "company": {
+    "name": "\"Karazhanbasmunai\" JSC"
+  },
+    "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "button": "Sign In",
+    "no_account": "Don't have an account?",
+    "register": "Register"
+  },
+  "register": {
+    "title": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "button": "Sign Up",
+    "have_account": "Already have an account?",
+    "login": "Login"
+  }
+}

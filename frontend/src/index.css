@@ -1,3 +1,238 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* DESIGN SYSTEM — derived from the login page UI */
+
+/* Variables */
+:root {
+  /* Colors */
+  --color-primary:        #1e3a8a; /* blue-900 — brand, headings, button bg, focus ring */
+  --color-primary-hover:  #1e40af; /* blue-800 — button hover */
+  --color-primary-link:   #2563eb; /* blue-600 — icon/link hover */
+  --color-accent:         #1d4ed8; /* blue-700 — active lang button text */
+
+  --color-bg:             #f9fafb; /* gray-50  — page & card-header background */
+  --color-surface:        #ffffff; /* white    — card body, active lang button */
+  --color-overlay:        rgb(30 58 138 / 0.8); /* blue-900/80 — backdrop overlay */
+
+  --color-text:           #1e293b; /* slate-800 — body text */
+  --color-text-secondary: #6b7280; /* gray-500  — subtitle, placeholder label */
+  --color-text-label:     #374151; /* gray-700  — form labels */
+  --color-text-muted:     #9ca3af; /* gray-400  — icons, input placeholder */
+
+  --color-border:         #d1d5db; /* gray-300 — input borders */
+  --color-border-light:   #f3f4f6; /* gray-100 — card header divider */
+  --color-border-medium:  #e5e7eb; /* gray-200 — lang switcher border */
+
+  /* Typography */
+  --font-sans:    ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'PT Sans', sans-serif; /* card header / brand font */
+
+  --text-sm:  0.875rem; /* 14px — labels, lang switcher */
+  --text-base: 1rem;    /* 16px */
+  --text-lg:  1.125rem; /* 18px — body, subtitle */
+  --text-4xl: 2.25rem;  /* 36px — main heading */
+
+  /* Spacing */
+  --space-1:  0.25rem;  /* 4px  — label margin-bottom */
+  --space-2:  0.5rem;   /* 8px  — subtitle margin-top, gap */
+  --space-3:  0.75rem;  /* 12px — icon left padding */
+  --space-4:  1rem;     /* 16px — horizontal padding */
+  --space-6:  1.5rem;   /* 24px — form vertical gap */
+  --space-8:  2rem;     /* 32px — card section padding */
+
+  /* Border radius */
+  --radius-md: 0.375rem; /* 6px  — lang switcher buttons */
+  --radius-lg: 0.5rem;   /* 8px  — inputs, buttons */
+  --radius-xl: 0.75rem;  /* 12px — card */
+
+  /* Shadows */
+  --shadow-sm:  0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+/* Page layout */
+.page {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Full-bleed background image with dark overlay */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.page-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.page-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-overlay);
+  backdrop-filter: blur(4px);
+}
+
+/* Card */
+.card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 28rem; /* max-w-md */
+  margin-left: var(--space-4);
+  margin-right: var(--space-4);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  background-color: var(--color-bg);
+  padding: var(--space-8);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border-light);
+  font-family: var(--font-display);
+}
+
+.card-body {
+  padding: var(--space-8);
+}
+
+/* Text styles */
+.heading {
+  font-size: var(--text-4xl);
+  line-height: 2.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.025em;
+}
+
+.subheading {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-label);
+  margin-bottom: var(--space-1);
+}
+
+/* Input field */
+/* Wrap <input> in .input-wrapper for icon support */
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper .input-icon {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  padding-left: var(--space-3);
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input-wrapper .input-icon-right {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  padding-right: var(--space-3);
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-wrapper .input-icon-right:hover {
+  color: var(--color-primary-link);
+}
+
+.input {
+  width: 100%;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 2.5rem;  /* pl-10 — room for left icon */
+  padding-right: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  outline: none;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+/* When there is also a right icon (e.g. password toggle) */
+.input.has-icon-right {
+  padding-right: 2.5rem; /* pr-10 */
+}
+
+/* Primary button */
+.btn-primary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Form vertical rhythm */
+.form-stack > * + * {
+  margin-top: var(--space-6);
+}
