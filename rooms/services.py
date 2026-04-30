@@ -99,5 +99,19 @@ def update_room(room, new_name=None, new_capacity=None, new_is_active=None, new_
     room.save()
     return room
 
-def delete_room(room):
-    raise ValidationError("Rooms cannot be deleted. Deactivate the room instead.")
+
+def deactivate_room(room):
+    room.is_active = False
+    room.save()
+
+
+def check_room_availability(room, start, end):
+    if not room.is_active:
+        return False
+    overlapping = Reservation.objects.filter(
+        room=room,
+        status='active',
+        start_time__lt=end,
+        end_time__gt=start,
+    ).exists()
+    return not overlapping

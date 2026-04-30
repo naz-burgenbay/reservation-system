@@ -24,7 +24,8 @@ from .services import (
     create_room,
     get_room_reservations,
     update_room,
-    delete_room
+    deactivate_room,
+    check_room_availability,
 )
 from reservations.serializers import ReservationSerializer
 
@@ -181,11 +182,8 @@ def room_delete(request, room_id):
         room = Room.objects.get(id=room_id)
     except Room.DoesNotExist:
         return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
-    try:
-        delete_room(room)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    except ValidationError as e:
-        return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+    deactivate_room(room)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
@@ -200,3 +198,24 @@ def building_detail(request, building_id):
 def room_detail(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     return Response(RoomSerializer(room).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def room_availability(request, room_id):
+    try:
+        room = Room.objects.get(id=room_id)
+    except Room.DoesNotExist:
+        return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
+    start_str = request.query_params.get('start')
+    end_str = request.query_params.get('end')
+    if not start_str or not end_str:
+        return Response({'error': 'start and end query parameters are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    start = parse_datetime(start_str)
+    if start is None:
+        return Response({'error': 'Invalid start datetime.'}, status=status.HTTP_400_BAD_REQUEST)
+    end = parse_datetime(end_str)
+    if end is None:
+        return Response({'error': 'Invalid end datetime.'}, status=status.HTTP_400_BAD_REQUEST)
+    available = check_room_availability(room, start, end)
+    return Response({'available': available})
