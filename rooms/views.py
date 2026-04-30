@@ -36,7 +36,8 @@ def building_create(request):
     if serializer.is_valid():
         try:
             building = create_building(
-                name=serializer.validated_data['name']
+                name=serializer.validated_data['name'],
+                address=serializer.validated_data['address'],
             )
             return Response(BuildingSerializer(building).data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
@@ -75,7 +76,8 @@ def building_update(request, building_id):
     try:
         updated = update_building(
             building,
-            new_name=serializer.validated_data.get('name')
+            new_name=serializer.validated_data.get('name'),
+            new_address=serializer.validated_data.get('address'),
         )
         return Response(BuildingSerializer(updated).data)
     except ValidationError as e:
@@ -109,6 +111,7 @@ def room_create(request):
             room = create_room(
                 building=building,
                 name=serializer.validated_data['name'],
+                floor=serializer.validated_data['floor'],
                 capacity=serializer.validated_data['capacity'],
                 is_active=serializer.validated_data['is_active']
             )
@@ -162,6 +165,7 @@ def room_update(request, room_id):
         updated = update_room(
             room,
             new_name=serializer.validated_data.get('name'),
+            new_floor=serializer.validated_data.get('floor'),
             new_capacity=serializer.validated_data.get('capacity'),
             new_is_active=serializer.validated_data.get('is_active')
         )

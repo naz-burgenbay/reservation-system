@@ -4,6 +4,7 @@ from .models import Building, Room
 
 class CreateBuildingSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
+    address = serializers.CharField(max_length=255)
 
 class BuildingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +13,7 @@ class BuildingSerializer(serializers.ModelSerializer):
 
 class UpdateBuildingSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255, required=False)
+    address = serializers.CharField(max_length=255, required=False)
 
     def validate(self, data):
         if not data:
@@ -22,6 +24,7 @@ class UpdateBuildingSerializer(serializers.Serializer):
 class CreateRoomSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     building = serializers.UUIDField()
+    floor = serializers.IntegerField(min_value=0)
     capacity = serializers.IntegerField(min_value=1)
     is_active = serializers.BooleanField(default=True)
 
@@ -32,6 +35,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
 class UpdateRoomSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255, required=False)
+    floor = serializers.IntegerField(min_value=0, required=False)
     capacity = serializers.IntegerField(min_value=1, required=False)
     is_active = serializers.BooleanField(required=False)
 
