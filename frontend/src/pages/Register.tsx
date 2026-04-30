@@ -1,10 +1,51 @@
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { register as apiRegister } from '../api/auth';
+import { useAuth } from '../context/AuthContext';
 import '../i18n';
 
 export default function Register() {
   const { t, i18n } = useTranslation();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.SyntheticEvent) { // Changed from React.FormEvent to React.SyntheticEvent to avoid type issues with e.preventDefault()
+    e.preventDefault();
+    setError(null);
+    if (password !== confirmPassword) {
+      setError(t('register.password_mismatch'));
+      return;
+    }
+    setLoading(true);
+    try {
+      await apiRegister(email, email, password);
+      await login(email, password);
+      navigate('/reservations', { replace: true });
+    } catch (err: any) {
+      const data = err?.response?.data;
+      const detail =
+        data?.detail ??
+        data?.email?.[0] ??
+        data?.username?.[0] ??
+        data?.password?.[0] ??
+        data?.non_field_errors?.[0] ??
+        t('register.error');
+      setError(detail);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="page">
       <div className="page-bg">
@@ -34,27 +75,46 @@ export default function Register() {
           <p className="subheading">{t('company.name')}</p>
         </div>
         <div className="card-body">
-          <form className="form-stack">
+          <form className="form-stack" onSubmit={handleSubmit}>
+            {error && (
+              <p style={{ color: '#dc2626', fontSize: 'var(--text-sm)', margin: 0 }}>{error}</p>
+            )}
             <div>
               <label className="label">{t('register.email')}</label>
               <div className="input-wrapper">
                 <span className="input-icon">
-                  {/* user icon */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </span>
-                <input className="input" placeholder={t('register.email')} required type="text" />
+                <input
+                  className="input"
+                  placeholder={t('register.email')}
+                  required
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
             </div>
             <div>
               <label className="label">{t('register.password')}</label>
               <div className="input-wrapper">
                 <span className="input-icon">
-                  {/* lock icon */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </span>
-                <input className="input" placeholder={t('register.password')} required type="password" />
-                <button type="button" className="input-icon-right" tabIndex={-1} aria-label="Показать пароль">
-                  {/* eye icon */}
+                <input
+                  className="input has-icon-right"
+                  placeholder={t('register.password')}
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="input-icon-right"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword((v) => !v)}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </button>
               </div>
@@ -63,17 +123,29 @@ export default function Register() {
               <label className="label">{t('register.confirm_password')}</label>
               <div className="input-wrapper">
                 <span className="input-icon">
-                  {/* lock icon */}
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </span>
-                <input className="input" placeholder={t('register.confirm_password')} required type="password" />
-                <button type="button" className="input-icon-right" tabIndex={-1} aria-label="Показать пароль">
-                  {/* eye icon */}
+                <input
+                  className="input has-icon-right"
+                  placeholder={t('register.confirm_password')}
+                  required
+                  type={showConfirm ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="input-icon-right"
+                  tabIndex={-1}
+                  onClick={() => setShowConfirm((v) => !v)}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </button>
               </div>
             </div>
-            <button type="submit" className="btn-primary">{t('register.button')}</button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {t('register.button')}
+            </button>
           </form>
           <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>

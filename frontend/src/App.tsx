@@ -3,10 +3,20 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import MyReservationsPage from "./pages/MyReservationsPage";
+import BuildingsPage from "./pages/BuildingsPage";
+import RoomsPage from "./pages/RoomsPage";
+import Navbar from "./components/Navbar";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
 }
 
 export default function App() {
@@ -16,10 +26,12 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/rooms" element={<ProtectedRoute><div>Rooms</div></ProtectedRoute>} />
-          <Route path="/rooms/:id" element={<ProtectedRoute><div>Room Detail</div></ProtectedRoute>} />
-          <Route path="/reservations" element={<ProtectedRoute><div>My Reservations</div></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/rooms" replace />} />
+          <Route path="/buildings" element={<ProtectedLayout><BuildingsPage /></ProtectedLayout>} />
+          <Route path="/buildings/:id" element={<ProtectedLayout><div>Building Detail</div></ProtectedLayout>} />
+          <Route path="/rooms" element={<ProtectedLayout><RoomsPage /></ProtectedLayout>} />
+          <Route path="/rooms/:id" element={<ProtectedLayout><div>Room Detail</div></ProtectedLayout>} />
+          <Route path="/reservations" element={<ProtectedLayout><MyReservationsPage /></ProtectedLayout>} />
+          <Route path="*" element={<Navigate to="/reservations" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

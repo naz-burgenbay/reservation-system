@@ -2,7 +2,7 @@ import apiClient from './client';
 import type { Reservation } from '../types';
 
 export const getMyReservations = (params?: { start?: string; end?: string }) =>
-  apiClient.get<Reservation[]>('/reservations/', { params });
+  apiClient.get<Reservation[]>('/reservations/my/', { params });
 
 export const getReservation = (id: string) =>
   apiClient.get<Reservation>(`/reservations/${id}/`);
