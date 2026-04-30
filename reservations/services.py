@@ -44,8 +44,10 @@ def create_reservation(user, room, title, start_time, end_time):
     )
 
 
-def get_user_reservations(user, start=None, end=None):
+def get_user_reservations(user, start=None, end=None, active_only=False):
     qs = Reservation.objects.filter(user=user)
+    if active_only:
+        qs = qs.filter(status='active')
     if start is not None:
         qs = qs.filter(end_time__gte=start)
     if end is not None:
@@ -59,6 +61,17 @@ def update_reservation(reservation, new_title=None, new_start_time=None, new_end
         raise ValidationError("Cannot update a canceled reservation.")
     if not reservation.room.is_active:
         raise ValidationError("The room is not available for reservations.")
+    now = timezone.now()
+    if reservation.start_time < now:
+        # Reservation has already started, only end_time extension is allowed
+        if new_title is not None or new_start_time is not None:
+            raise ValidationError("Only end_time can be updated for a reservation that has already started.")
+        if new_end_time is not None:
+            _validate_times(reservation.start_time, new_end_time)
+            _check_room_overlap(reservation.room, reservation.start_time, new_end_time, exclude_id=reservation.pk)
+            reservation.end_time = new_end_time
+            reservation.save()
+        return reservation
     if new_title is not None:
         if not new_title.strip():
             raise ValidationError("title must not be blank.")
@@ -78,6 +91,8 @@ def update_reservation(reservation, new_title=None, new_start_time=None, new_end
 def cancel_reservation(reservation):
     if reservation.status == 'canceled':
         raise ValidationError("Reservation is already canceled.")
+    if reservation.start_time < timezone.now():
+        raise ValidationError("Cannot cancel a reservation that has already started.")
     reservation.status = 'canceled'
     reservation.save()
     return reservation

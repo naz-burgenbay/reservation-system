@@ -18,7 +18,21 @@ class UpdateReservationSerializer(serializers.Serializer):
             raise serializers.ValidationError("At least one field must be provided.")
         return data
 
+class NestedBuildingSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    address = serializers.CharField()
+
+
+class NestedRoomSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    floor = serializers.IntegerField()
+    building = NestedBuildingSerializer()
+
+
 class ReservationSerializer(serializers.ModelSerializer):
+    room = NestedRoomSerializer(read_only=True)
+
     class Meta:
         model = Reservation
         fields = '__all__'
