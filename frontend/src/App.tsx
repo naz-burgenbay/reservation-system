@@ -12,6 +12,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<div>Login</div>} />
+          <Route path="/register" element={<div>Register</div>} />
           <Route path="/rooms" element={<ProtectedRoute><div>Rooms</div></ProtectedRoute>} />
           <Route path="/rooms/:id" element={<ProtectedRoute><div>Room Detail</div></ProtectedRoute>} />
           <Route path="/reservations" element={<ProtectedRoute><div>My Reservations</div></ProtectedRoute>} />
