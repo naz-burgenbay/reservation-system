@@ -19,7 +19,7 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.SyntheticEvent) { // Changed from React.FormEvent to React.SyntheticEvent to avoid type issues with e.preventDefault()
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) { 
     e.preventDefault();
     setError(null);
     if (password !== confirmPassword) {
@@ -31,16 +31,25 @@ export default function Register() {
       await apiRegister(email, email, password);
       await login(email, password);
       navigate('/reservations', { replace: true });
-    } catch (err: any) {
-      const data = err?.response?.data;
-      const detail =
-        data?.detail ??
-        data?.email?.[0] ??
-        data?.username?.[0] ??
-        data?.password?.[0] ??
-        data?.non_field_errors?.[0] ??
-        t('register.error');
-      setError(detail);
+    } catch (err) {
+      type ErrorData = { detail?: string; email?: string[]; username?: string[]; password?: string[]; non_field_errors?: string[] };
+      const response = (err as { response?: { data?: ErrorData } }).response;
+      const data = response?.data;
+      let message = t('register.error');
+      if (data) {
+        if (data.detail) {
+          message = data.detail;
+        } else if (data.email && data.email.length > 0) {
+          message = data.email[0];
+        } else if (data.username && data.username.length > 0) {
+          message = data.username[0];
+        } else if (data.password && data.password.length > 0) {
+          message = data.password[0];
+        } else if (data.non_field_errors && data.non_field_errors.length > 0) {
+          message = data.non_field_errors[0];
+        }
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }

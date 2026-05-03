@@ -27,7 +27,7 @@ export default function EditRoomPage() {
       .catch(() => setLoadError(t('rooms.error')));
   }, [id, t]);
 
-  async function handleSubmit(e: React.SyntheticEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!id) return;
     setError(null);
@@ -35,15 +35,23 @@ export default function EditRoomPage() {
     try {
       await updateRoom(id, { name, floor: Number(floor), capacity: Number(capacity) });
       navigate('/rooms', { replace: true });
-    } catch (err: any) {
-      const data = err?.response?.data;
-      setError(
-        data?.detail ??
-          data?.name?.[0] ??
-          data?.floor?.[0] ??
-          data?.capacity?.[0] ??
-          t('rooms.save_error'),
-      );
+    } catch (err) {
+      type ErrorData = { detail?: string; name?: string[]; floor?: string[]; capacity?: string[] };
+      const response = (err as { response?: { data?: ErrorData } }).response;
+      const data = response?.data;
+      let message = t('rooms.save_error');
+      if (data) {
+        if (data.detail) {
+          message = data.detail;
+        } else if (data.name && data.name.length > 0) {
+          message = data.name[0];
+        } else if (data.floor && data.floor.length > 0) {
+          message = data.floor[0];
+        } else if (data.capacity && data.capacity.length > 0) {
+          message = data.capacity[0];
+        }
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }

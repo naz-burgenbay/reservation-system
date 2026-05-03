@@ -16,18 +16,25 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.SyntheticEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
       await login(username, password);
       navigate('/reservations', { replace: true });
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail
-        ?? err?.response?.data?.non_field_errors?.[0]
-        ?? t('login.error');
-      setError(detail);
+    } catch (err) {
+      const response = (err as { response?: { data?: { detail?: string; non_field_errors?: string[] } } }).response;
+      const data = response?.data;
+      let message = t('login.error');
+      if (data) {
+        if (data.detail) {
+          message = data.detail;
+        } else if (data.non_field_errors && data.non_field_errors.length > 0) {
+          message = data.non_field_errors[0];
+        }
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }

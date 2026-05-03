@@ -18,16 +18,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      getMe()
-        .then((res) => setUser(res.data))
-        .catch(() => {
-          localStorage.removeItem('access');
-          localStorage.removeItem('refresh');
-          setIsAuthenticated(false);
-        });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!isAuthenticated) return;
+    getMe()
+      .then((res) => setUser(res.data))
+      .catch(() => {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        setIsAuthenticated(false);
+      });
+  // Запускается один раз при монтировании. Восстанавливает пользователя из сохранённого токена.
   }, []);
 
   async function login(username: string, password: string) {

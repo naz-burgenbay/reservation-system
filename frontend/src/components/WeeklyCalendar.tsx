@@ -2,20 +2,29 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ReservationItem } from '../types';
 
-// ---- Constants ------------------------------------------------------------
+// Константы
 
 const START_HOUR = 8;
 const END_HOUR = 20;
-const CELL_HEIGHT = 48; // px per hour
-const HOURS = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i);
+const CELL_HEIGHT = 48; // пикселей на час
 
-// ---- Helpers --------------------------------------------------------------
+const HOURS: number[] = [];
+for (let h = START_HOUR; h < END_HOUR; h++) {
+  HOURS.push(h);
+}
+
+// Вспомогательные функции
 
 function getMonday(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
+  let diff: number;
+  if (day === 0) {
+    diff = -6; // Воскресенье: отступить на 6 дней назад до понедельника
+  } else {
+    diff = 1 - day; // Любой другой день: отступить до понедельника
+  }
   d.setDate(d.getDate() + diff);
   return d;
 }
@@ -32,7 +41,7 @@ function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-// ---- Props ----------------------------------------------------------------
+// Пропсы
 
 interface WeeklyCalendarProps {
   events: ReservationItem[];
@@ -41,7 +50,7 @@ interface WeeklyCalendarProps {
   onWeekChange: (start: Date, end: Date) => void;
 }
 
-// ---- Component ------------------------------------------------------------
+// Компонент
 
 export default function WeeklyCalendar({
   events,
@@ -54,16 +63,17 @@ export default function WeeklyCalendar({
 
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()));
 
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
+  const weekDays: Date[] = [];
+  for (let i = 0; i < 7; i++) {
     const d = new Date(weekStart);
     d.setDate(weekStart.getDate() + i);
-    return d;
-  });
+    weekDays.push(d);
+  }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Notify parent whenever week changes
+  // Уведомить родителя при смене недели
   useEffect(() => {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
@@ -71,39 +81,39 @@ export default function WeeklyCalendar({
     onWeekChange(weekStart, weekEnd);
   }, [weekStart, onWeekChange]);
 
-  const prevWeek = () =>
-    setWeekStart((d) => {
-      const nd = new Date(d);
-      nd.setDate(nd.getDate() - 7);
-      return nd;
+  function prevWeek() {
+    setWeekStart((current) => {
+      const prev = new Date(current);
+      prev.setDate(prev.getDate() - 7);
+      return prev;
     });
+  }
 
-  const nextWeek = () =>
-    setWeekStart((d) => {
-      const nd = new Date(d);
-      nd.setDate(nd.getDate() + 7);
-      return nd;
+  function nextWeek() {
+    setWeekStart((current) => {
+      const next = new Date(current);
+      next.setDate(next.getDate() + 7);
+      return next;
     });
+  }
 
-  const goToday = () => setWeekStart(getMonday(new Date()));
+  function goToday() {
+    setWeekStart(getMonday(new Date()));
+  }
 
-  const getEventsForDay = (day: Date) =>
-    events.filter((r) => isSameDay(new Date(r.start_time), day));
+  function getEventsForDay(day: Date) {
+    return events.filter((r) => isSameDay(new Date(r.start_time), day));
+  }
 
-  const weekLabel = `${weekDays[0].toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'short',
-  })} – ${weekDays[6].toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })}`;
+  const firstDay = weekDays[0].toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+  const lastDay = weekDays[6].toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  const weekLabel = `${firstDay} – ${lastDay}`;
 
   const totalHeight = HOURS.length * CELL_HEIGHT;
 
   return (
     <div className="calendar">
-      {/* Navigation */}
+      {/* Навигация */}
       <div className="calendar-nav">
         <button className="btn-secondary" onClick={prevWeek} type="button">
           ←
@@ -121,7 +131,7 @@ export default function WeeklyCalendar({
         </button>
       </div>
 
-      {/* Status */}
+      {/* Статус */}
       {loading && (
         <p className="calendar-status calendar-status--loading">
           {t('reservations.loading')}
@@ -131,23 +141,26 @@ export default function WeeklyCalendar({
         <p className="calendar-status calendar-status--error">{error}</p>
       )}
 
-      {/* Header row */}
+      {/* Заголовок: дни недели */}
       <div className="calendar-header">
         <div className="calendar-header-corner" />
-        {weekDays.map((day, i) => (
-          <div
-            key={i}
-            className={`calendar-header-cell${isSameDay(day, today) ? ' is-today' : ''}`}
-          >
-            <div>{day.toLocaleDateString(locale, { weekday: 'short' })}</div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 400, color: 'inherit' }}>
-              {day.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+        {weekDays.map((day, i) => {
+          let headerClass = 'calendar-header-cell';
+          if (isSameDay(day, today)) {
+            headerClass += ' is-today';
+          }
+          return (
+            <div key={i} className={headerClass}>
+              <div>{day.toLocaleDateString(locale, { weekday: 'short' })}</div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 400, color: 'inherit' }}>
+                {day.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Body: time column + day columns */}
+      {/* Тело: колонка времени + колонки дней */}
       <div className="calendar-body">
         <div className="calendar-time-col">
           {HOURS.map((h) => (
@@ -182,18 +195,21 @@ export default function WeeklyCalendar({
               const top = (clampedStart - START_HOUR) * CELL_HEIGHT;
               const height = Math.max((clampedEnd - clampedStart) * CELL_HEIGHT, 18);
 
+              const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+              const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+              const eventTitle = `${r.title}\n${r.room.name} · ${r.room.building.name}\n${startTime} – ${endTime}`;
+
               return (
                 <div
                   key={r.id}
                   className="calendar-event"
                   style={{ top: `${top}px`, height: `${height}px` }}
-                  title={`${r.title}\n${r.room.name} · ${r.room.building.name}\n${pad(start.getHours())}:${pad(start.getMinutes())} – ${pad(end.getHours())}:${pad(end.getMinutes())}`}
+                  title={eventTitle}
                 >
                   <div className="calendar-event-title">{r.title}</div>
                   {height >= 32 && (
                     <div className="calendar-event-time">
-                      {pad(start.getHours())}:{pad(start.getMinutes())} –{' '}
-                      {pad(end.getHours())}:{pad(end.getMinutes())}
+                      {startTime} – {endTime}
                     </div>
                   )}
                   {height >= 48 && (

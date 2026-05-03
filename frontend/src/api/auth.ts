@@ -1,11 +1,17 @@
 import apiClient from './client';
 import type { User } from '../types';
 
-export const login = (username: string, password: string) =>
-  apiClient.post<{ access: string; refresh: string }>('/users/login/', { username, password });
+export function login(username: string, password: string) {
+  const url = '/users/login/';
+  return apiClient.post<{ access: string; refresh: string }>(url, { username, password });
+}
 
-export const register = (username: string, email: string, password: string) =>
-  apiClient.post<{ user: User; access: string; refresh: string }>('/users/register/', { username, email, password });
+export function register(username: string, email: string, password: string) {
+  const url = '/users/register/';
+  return apiClient.post<{ user: User; access: string; refresh: string }>(url, { username, email, password });
+}
 
-export const getMe = () =>
-  apiClient.get<User>('/users/me/');
+export function getMe() {
+  const url = '/users/me/';
+  return apiClient.get<User>(url);
+}

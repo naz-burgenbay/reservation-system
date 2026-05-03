@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import apiClient from '../api/client';
+import { getMyReservations } from '../api/reservations';
 import type { ReservationItem } from '../types';
 import WeeklyCalendar from '../components/WeeklyCalendar';
 import '../i18n';
@@ -12,16 +12,17 @@ export default function MyReservationsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleWeekChange = useCallback((start: Date, end: Date) => {
+  const handleWeekChange = useCallback(async (start: Date, end: Date) => {
     setLoading(true);
     setError(null);
-    apiClient
-      .get<ReservationItem[]>('/reservations/my/', {
-        params: { start: start.toISOString(), end: end.toISOString() },
-      })
-      .then((res) => setReservations(res.data))
-      .catch(() => setError(t('reservations.error')))
-      .finally(() => setLoading(false));
+    try {
+      const res = await getMyReservations({ start: start.toISOString(), end: end.toISOString() });
+      setReservations(res.data);
+    } catch {
+      setError(t('reservations.error'));
+    } finally {
+      setLoading(false);
+    }
   }, [t]);
 
   return (

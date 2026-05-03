@@ -63,7 +63,6 @@ def update_reservation(reservation, new_title=None, new_start_time=None, new_end
         raise ValidationError("The room is not available for reservations.")
     now = timezone.now()
     if reservation.start_time < now:
-        # Reservation has already started, only end_time extension is allowed
         if new_title is not None or new_start_time is not None:
             raise ValidationError("Only end_time can be updated for a reservation that has already started.")
         if new_end_time is not None:

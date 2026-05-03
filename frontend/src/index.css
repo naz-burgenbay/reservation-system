@@ -2,58 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DESIGN SYSTEM — derived from the login page UI */
+/* Дизайн-система */
 
-/* Variables */
+/* Переменные */
 :root {
-  /* Colors */
-  --color-primary:        #1e3a8a; /* blue-900 — brand, headings, button bg, focus ring */
-  --color-primary-hover:  #1e40af; /* blue-800 — button hover */
-  --color-primary-link:   #2563eb; /* blue-600 — icon/link hover */
-  --color-accent:         #1d4ed8; /* blue-700 — active lang button text */
+  /* Цвета */
+  --color-primary:        #1e3a8a; /* бренд, заголовки, фон кнопки, обводка фокуса */
+  --color-primary-hover:  #1e40af; /* hover кнопки */
+  --color-primary-link:   #2563eb; /* hover иконок и ссылок */
+  --color-accent:         #1d4ed8; /* текст активной кнопки языка */
 
-  --color-bg:             #f9fafb; /* gray-50  — page & card-header background */
-  --color-surface:        #ffffff; /* white    — card body, active lang button */
-  --color-overlay:        rgb(30 58 138 / 0.8); /* blue-900/80 — backdrop overlay */
+  --color-bg:             #f9fafb; /* фон страницы и шапки карточки */
+  --color-surface:        #ffffff; /* тело карточки, активная кнопка языка */
+  --color-overlay:        rgb(30 58 138 / 0.8); /* синий-900/80 — затемнение фона */
 
-  --color-text:           #1e293b; /* slate-800 — body text */
-  --color-text-secondary: #6b7280; /* gray-500  — subtitle, placeholder label */
-  --color-text-label:     #374151; /* gray-700  — form labels */
-  --color-text-muted:     #9ca3af; /* gray-400  — icons, input placeholder */
+  --color-text:           #1e293b; /* основной текст */
+  --color-text-secondary: #6b7280; /* подзаголовок, плейсхолдер */
+  --color-text-label:     #374151; /* подписи полей */
+  --color-text-muted:     #9ca3af; /* иконки, плейсхолдер input */
 
-  --color-border:         #d1d5db; /* gray-300 — input borders */
-  --color-border-light:   #f3f4f6; /* gray-100 — card header divider */
-  --color-border-medium:  #e5e7eb; /* gray-200 — lang switcher border */
+  --color-border:         #d1d5db; /* границы input */
+  --color-border-light:   #f3f4f6; /* разделитель шапки карточки */
+  --color-border-medium:  #e5e7eb; /* граница переключателя языка */
 
-  /* Typography */
+  /* Типографика */
   --font-sans:    ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'PT Sans', sans-serif; /* card header / brand font */
+  --font-display: 'PT Sans', sans-serif; /* card header */
 
-  --text-sm:  0.875rem; /* 14px — labels, lang switcher */
+  --text-sm:  0.875rem; /* 14px подписи, переключатель языка */
   --text-base: 1rem;    /* 16px */
-  --text-lg:  1.125rem; /* 18px — body, subtitle */
-  --text-4xl: 2.25rem;  /* 36px — main heading */
+  --text-lg:  1.125rem; /* 18px основной текст, подзаголовок */
+  --text-4xl: 2.25rem;  /* 36px главный заголовок */
 
-  /* Spacing */
-  --space-1:  0.25rem;  /* 4px  — label margin-bottom */
-  --space-2:  0.5rem;   /* 8px  — subtitle margin-top, gap */
-  --space-3:  0.75rem;  /* 12px — icon left padding */
-  --space-4:  1rem;     /* 16px — horizontal padding */
-  --space-6:  1.5rem;   /* 24px — form vertical gap */
-  --space-8:  2rem;     /* 32px — card section padding */
+  /* Отступы */
+  --space-1:  0.25rem;  /* 4px нижний отступ подписи */
+  --space-2:  0.5rem;   /* 8px верхний отступ подзаголовка */
+  --space-3:  0.75rem;  /* 12px отступ иконки слева */
+  --space-4:  1rem;     /* 16px горизонтальный паддинг */
+  --space-6:  1.5rem;   /* 24px вертикальный отступ формы */
+  --space-8:  2rem;     /* 32px паддинг секции карточки */
 
-  /* Border radius */
-  --radius-md: 0.375rem; /* 6px  — lang switcher buttons */
-  --radius-lg: 0.5rem;   /* 8px  — inputs, buttons */
-  --radius-xl: 0.75rem;  /* 12px — card */
+  /* Скругление углов */
+  --radius-md: 0.375rem; /* 6px  — кнопки переключателя языка */
+  --radius-lg: 0.5rem;   /* 8px  — input, кнопки */
+  --radius-xl: 0.75rem;  /* 12px — карточка */
 
-  /* Shadows */
+  /* Тени */
   --shadow-sm:  0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
 
-/* Page layout */
+/* Макет страницы */
 .page {
   min-height: 100vh;
   width: 100vw;
@@ -69,7 +69,7 @@
   overflow-x: hidden;
 }
 
-/* Full-bleed background image with dark overlay */
+/* Фоновое изображение на всю страницу с тёмным наложением */
 .page-bg {
   position: fixed;
   inset: 0;
@@ -93,7 +93,7 @@
   backdrop-filter: blur(4px);
 }
 
-/* Card */
+/* Карточка */
 .card {
   position: relative;
   z-index: 10;
@@ -123,7 +123,7 @@
   padding: var(--space-8);
 }
 
-/* Text styles */
+/* Текстовые стили */
 .heading {
   font-size: var(--text-4xl);
   line-height: 2.5rem;
@@ -147,8 +147,8 @@
   margin-bottom: var(--space-1);
 }
 
-/* Input field */
-/* Wrap <input> in .input-wrapper for icon support */
+/* Поле ввода */
+/* Обертка input в .input-wrapper для поддержки иконок */
 .input-wrapper {
   position: relative;
 }
@@ -186,7 +186,7 @@
   width: 100%;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  padding-left: 2.5rem;  /* pl-10 — room for left icon */
+  padding-left: 2.5rem;  /* pl-10 отступ для левой иконки */
   padding-right: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -202,12 +202,12 @@
   box-shadow: 0 0 0 2px var(--color-primary);
 }
 
-/* When there is also a right icon (e.g. password toggle) */
+/* Когда есть правая иконка (типа переключателя видимости пароля) */
 .input.has-icon-right {
-  padding-right: 2.5rem; /* pr-10 */
+  padding-right: 2.5rem; /* pr-10 отступ для правой иконки */
 }
 
-/* Primary button */
+/* Основная кнопка */
 .btn-primary {
   width: 100%;
   display: flex;
@@ -232,12 +232,12 @@
   background-color: var(--color-primary-hover);
 }
 
-/* Form vertical rhythm */
+/* Вертикальный ритм формы */
 .form-stack > * + * {
   margin-top: var(--space-6);
 }
 
-/* Link */
+/* Ссылка */
 .link {
   color: var(--color-primary-link);
   font-size: var(--text-sm);
@@ -251,7 +251,7 @@
   text-decoration: underline;
 }
 
-/* ---- Wide card variant (for dashboard pages) ---- */
+/* Широкий вариант карточки (для страниц дашборда) */
 .card--wide {
   max-width: 72rem;
   margin-top: var(--space-8);
@@ -271,7 +271,7 @@
   margin-bottom: 0;
 }
 
-/* ---- List items (Buildings / Rooms) ---- */
+/* Элементы списка (Здания/Комнаты) */
 .list-item {
   display: flex;
   align-items: center;
@@ -304,7 +304,7 @@
   margin: 0.125rem 0 0;
 }
 
-/* ---- Secondary button ---- */
+/* Вторичная кнопка */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
@@ -326,7 +326,7 @@
   border-color: var(--color-primary);
 }
 
-/* ---- Calendar ---- */
+/* Календарь */
 .calendar {
   width: 100%;
   overflow-x: auto;
@@ -348,7 +348,7 @@
   flex: 1;
 }
 
-/* Header row: time corner + 7 day labels */
+/* Заголовок: угол времени + 7 подписей дней */
 .calendar-header {
   display: flex;
   border: 1px solid var(--color-border-medium);
@@ -383,7 +383,7 @@
   color: var(--color-primary);
 }
 
-/* Body: time-col + 7 day columns */
+/* Тело: колонка времени + 7 колонок дней */
 .calendar-body {
   display: flex;
   border: 1px solid var(--color-border-medium);
@@ -399,7 +399,7 @@
 }
 
 .calendar-time-label {
-  height: 3rem; /* 48px — matches CELL_HEIGHT */
+  height: 3rem; /* 48px вточь как CELL_HEIGHT */
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
@@ -421,7 +421,7 @@
   border-right: none;
 }
 
-/* Each hour cell — creates the horizontal grid lines */
+/* Ячейка каждого часа (создаёт горизонтальную сетку) */
 .calendar-cell {
   height: 3rem; /* 48px */
   border-bottom: 1px solid var(--color-border-light);
@@ -432,7 +432,7 @@
   border-bottom: none;
 }
 
-/* Reservation block */
+/* Блок бронирования */
 .calendar-event {
   position: absolute;
   left: 2px;
@@ -483,7 +483,7 @@
   font-size: var(--text-sm);
 }
 
-/* ---- Navbar ---- */
+/* Навигационная панель */
 .navbar {
   position: sticky;
   top: 0;
@@ -551,16 +551,16 @@
 .navbar-lang-btn:hover,
 .navbar-lang-btn.is-active {
   color: var(--color-surface);
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0);
 }
 
 .navbar-logout-btn {
   padding: 0.25rem 0.875rem;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0);
+  background-color: rgba(255, 255, 255, 0);
+  border: 1px solid rgba(255, 255, 255, 0);
   border-radius: var(--radius-lg);
   cursor: pointer;
   white-space: nowrap;
@@ -570,6 +570,6 @@
 }
 
 .navbar-logout-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 255, 255, 0);
+  border-color: rgba(255, 255, 255, 0);
 }
