@@ -37,12 +37,14 @@ export default function Navbar() {
           {t('nav.rooms')}
         </NavLink>
         {user?.role === 'admin' && (
-          <NavLink
-            to="/admin"
-            className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          <a
+            href="http://localhost:8000/admin/"
+            target="_blank"
+            rel="noreferrer"
+            className="nav-link"
           >
             {t('nav.admin')}
-          </NavLink>
+          </a>
         )}
       </div>
 
@@ -54,6 +56,7 @@ export default function Navbar() {
         >
           Қаз
         </button>
+        <span style={{ color: 'rgba(255,255,255,0.35)', userSelect: 'none', padding: '0 0.125rem' }}>|</span>
         <button
           type="button"
           className={`navbar-lang-btn${i18n.language === 'ru' ? ' is-active' : ''}`}
@@ -63,7 +66,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      <button type="button" className="navbar-logout-btn" onClick={handleLogout}>
+      <button type="button" className="nav-link" onClick={handleLogout}>
         {t('nav.logout')}
       </button>
     </nav>

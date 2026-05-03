@@ -48,6 +48,7 @@ export interface NestedRoom {
 
 export interface ReservationItem {
   id: string;
+  user: string;
   room: NestedRoom;
   title: string;
   start_time: string;

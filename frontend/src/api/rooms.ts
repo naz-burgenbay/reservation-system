@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Building, Room, Reservation } from '../types';
+import type { Building, Room, ReservationItem } from '../types';
 
 export function getBuildings() {
   const url = '/rooms/buildings/';
@@ -58,5 +58,5 @@ export function getBuildingRooms(buildingId: string) {
 
 export function getRoomReservations(roomId: string, params?: { start?: string; end?: string }) {
   const url = `/rooms/${roomId}/reservations/`;
-  return apiClient.get<Reservation[]>(url, { params });
+  return apiClient.get<ReservationItem[]>(url, { params });
 }

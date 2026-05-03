@@ -48,6 +48,8 @@ interface WeeklyCalendarProps {
   loading?: boolean;
   error?: string | null;
   onWeekChange: (start: Date, end: Date) => void;
+  onEventClick?: (event: ReservationItem) => void;
+  onEventContextMenu?: (event: ReservationItem, x: number, y: number) => void;
 }
 
 // Компонент
@@ -57,6 +59,8 @@ export default function WeeklyCalendar({
   loading = false,
   error = null,
   onWeekChange,
+  onEventClick,
+  onEventContextMenu,
 }: WeeklyCalendarProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language === 'kz' ? 'kk-KZ' : 'ru-RU';
@@ -203,8 +207,15 @@ export default function WeeklyCalendar({
                 <div
                   key={r.id}
                   className="calendar-event"
-                  style={{ top: `${top}px`, height: `${height}px` }}
+                  style={{ top: `${top}px`, height: `${height}px`, cursor: onEventClick ? 'pointer' : 'default' }}
                   title={eventTitle}
+                  onClick={() => { if (onEventClick) { onEventClick(r); } }}
+                  onContextMenu={(e) => {
+                    if (onEventContextMenu) {
+                      e.preventDefault();
+                      onEventContextMenu(r, e.clientX, e.clientY);
+                    }
+                  }}
                 >
                   <div className="calendar-event-title">{r.title}</div>
                   {height >= 32 && (
