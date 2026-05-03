@@ -24,7 +24,8 @@ from .services import (
     create_room,
     get_room_reservations,
     update_room,
-    delete_room
+    deactivate_room,
+    check_room_availability,
 )
 from reservations.serializers import ReservationSerializer
 
@@ -36,7 +37,8 @@ def building_create(request):
     if serializer.is_valid():
         try:
             building = create_building(
-                name=serializer.validated_data['name']
+                name=serializer.validated_data['name'],
+                address=serializer.validated_data['address'],
             )
             return Response(BuildingSerializer(building).data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
@@ -75,7 +77,8 @@ def building_update(request, building_id):
     try:
         updated = update_building(
             building,
-            new_name=serializer.validated_data.get('name')
+            new_name=serializer.validated_data.get('name'),
+            new_address=serializer.validated_data.get('address'),
         )
         return Response(BuildingSerializer(updated).data)
     except ValidationError as e:
@@ -109,6 +112,7 @@ def room_create(request):
             room = create_room(
                 building=building,
                 name=serializer.validated_data['name'],
+                floor=serializer.validated_data['floor'],
                 capacity=serializer.validated_data['capacity'],
                 is_active=serializer.validated_data['is_active']
             )
@@ -162,6 +166,7 @@ def room_update(request, room_id):
         updated = update_room(
             room,
             new_name=serializer.validated_data.get('name'),
+            new_floor=serializer.validated_data.get('floor'),
             new_capacity=serializer.validated_data.get('capacity'),
             new_is_active=serializer.validated_data.get('is_active')
         )
@@ -177,11 +182,8 @@ def room_delete(request, room_id):
         room = Room.objects.get(id=room_id)
     except Room.DoesNotExist:
         return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
-    try:
-        delete_room(room)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    except ValidationError as e:
-        return Response({'error': ', '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+    deactivate_room(room)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
@@ -196,3 +198,24 @@ def building_detail(request, building_id):
 def room_detail(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     return Response(RoomSerializer(room).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def room_availability(request, room_id):
+    try:
+        room = Room.objects.get(id=room_id)
+    except Room.DoesNotExist:
+        return Response({'error': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
+    start_str = request.query_params.get('start')
+    end_str = request.query_params.get('end')
+    if not start_str or not end_str:
+        return Response({'error': 'start and end query parameters are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    start = parse_datetime(start_str)
+    if start is None:
+        return Response({'error': 'Invalid start datetime.'}, status=status.HTTP_400_BAD_REQUEST)
+    end = parse_datetime(end_str)
+    if end is None:
+        return Response({'error': 'Invalid end datetime.'}, status=status.HTTP_400_BAD_REQUEST)
+    available = check_room_availability(room, start, end)
+    return Response({'available': available})

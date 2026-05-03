@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from rooms.models import Room
-from users.permissions import IsAdminRole
 from .models import Reservation
 from .serializers import CreateReservationSerializer, UpdateReservationSerializer, ReservationSerializer
 from .services import (
@@ -64,7 +63,10 @@ def reservation_list(request):
 @permission_classes([IsAuthenticated])
 def reservation_update(request, reservation_id):
     try:
-        reservation = Reservation.objects.get(id=reservation_id, user=request.user)
+        if request.user.role == 'admin':
+            reservation = Reservation.objects.get(id=reservation_id)
+        else:
+            reservation = Reservation.objects.get(id=reservation_id, user=request.user)
     except Reservation.DoesNotExist:
         return Response({'error': 'Reservation not found.'}, status=status.HTTP_404_NOT_FOUND)
     serializer = UpdateReservationSerializer(data=request.data)
@@ -86,7 +88,7 @@ def reservation_update(request, reservation_id):
 @permission_classes([IsAuthenticated])
 def reservation_cancel(request, reservation_id):
     try:
-        if IsAdminRole().has_permission(request, None):
+        if request.user.role == 'admin':
             reservation = Reservation.objects.get(id=reservation_id)
         else:
             reservation = Reservation.objects.get(id=reservation_id, user=request.user)
@@ -102,7 +104,7 @@ def reservation_cancel(request, reservation_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def reservation_detail(request, reservation_id):
-    if IsAdminRole().has_permission(request, None):
+    if request.user.role == 'admin':
         reservation = get_object_or_404(Reservation, id=reservation_id)
     else:
         reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
