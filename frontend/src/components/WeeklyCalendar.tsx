@@ -5,7 +5,7 @@ import type { ReservationItem } from '../types';
 // Константы
 
 const START_HOUR = 8;
-const END_HOUR = 20;
+const END_HOUR = 18;
 const CELL_HEIGHT = 48; // пикселей на час
 
 const HOURS: number[] = [];
